@@ -1,0 +1,17 @@
+# the address for consul server
+consul_server: "192.168.0.190:8500"
+
+# the owner of files
+USER: dev
+GROUP: root
+
+# td-agent-bit Configuration parameter
+LOG_PATH: "/opt/logs/jetty/study/xue.gateway.learn/learn.log"
+TD_AGENT_BIT_DIR_PATH: '/opt/logs/td-agent-bit'
+TD_AGENT_BIT_LOG_NAME: 'td-agent-bit.log'
+TAG: "study.all"
+TOPIC: 'xue_business_study_online'
+
+
+consul_tags: ["study","business","fluentbit"]
+sudo_user: 'dev'

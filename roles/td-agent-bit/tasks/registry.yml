@@ -1,0 +1,8 @@
+---
+- name: Copy the registry consul script
+  template:
+    src: registry.json.j2
+    dest: /etc/td-agent-bit/registry.json
+
+- name: Registry consul
+  shell: curl --request PUT  --data @/etc/td-agent-bit/registry.json http://{{ consul_server }}/v1/agent/service/register

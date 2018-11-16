@@ -1,0 +1,7 @@
+---
+- hosts: "{{host}}"
+#  strategy: debug
+  remote_user: root
+
+  roles:
+    - { role: td-agent-bit, use_consul: 'yes' }

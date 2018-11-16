@@ -1,0 +1,38 @@
+---
+- name: Add rpm repository
+  copy: 
+    src: td-agent-bit.repo 
+    dest: /etc/yum.repos.d/td-agent-bit.repo
+
+- name: yum install td-agent-bit
+  yum: 
+    name: td-agent-bit 
+    state: latest
+
+- name: Create dir
+  file:
+    path: "{{ item }}"
+    group: "{{ GROUP }}"
+    owner: "{{ USER }}"
+    state: directory
+    mode:  0777
+  loop:
+    - "{{ TD_AGENT_BIT_DIR_PATH }}"
+
+- name: Change owner
+  shell: chown -R "{{ USER }}":"{{ GROUP }}" /etc/td-agent-bit 
+
+- name: Send config
+  template:
+    src:  "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'parsers.conf.j2', dest: '/etc/td-agent-bit/parsers.conf' }
+    - { src: 'td-agent-bit.conf.j2', dest: '/etc/td-agent-bit/td-agent-bit.conf' }
+  notify:
+    - restart td-agent-bit
+
+- name: Config /etc/sudoers
+  lineinfile: dest=/etc/sudoers state=present  line='{{item}}' validate='visudo -cf %s'
+  loop:
+    - "{{ sudo_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl"
