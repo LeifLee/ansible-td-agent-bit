@@ -1,0 +1,13 @@
+LEARN_MAIN_TAG: 'learn.main'
+LEARN_LOG_PATH: '/opt/logs/jetty/study/xue.gateway.learning/learning.log'
+LEARN_MAIN_DB_PATH: '/tmp/learn_fluentbit.db'
+LEARN_MAIN_TOPIC: 'xue_business_learn_online'
+
+LEARN_RECORD_TAG: 'learn.record'
+LEARN_RECORD_LOG_PATH: '/opt/logs/jetty/study/xue.gateway.learning/learning_record.log'
+LEARN_RECORD_DB_PATH: '/tmp/learn_record_fluentbit.db'
+LEARN_RECORD_TOPIC: 'xue_business_learning_record_online'
+
+KAFKA_TAG: 'learn.*'
+
+consul_tags: ["learn","business","fluentbit"]

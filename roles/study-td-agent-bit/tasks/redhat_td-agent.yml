@@ -4,10 +4,20 @@
     src: td-agent-bit.repo 
     dest: /etc/yum.repos.d/td-agent-bit.repo
 
-- name: yum install td-agent-bit
-  yum: 
-    name: td-agent-bit 
-    state: latest
+- name: 'YUM - fire and forget task'
+  yum:
+    name: td-agent-bit
+    state: installed
+  async: 1000
+  poll: 0
+  register: yum_sleeper
+
+- name: 'YUM - check on fire and forget task'
+  async_status:
+    jid: "{{ yum_sleeper.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 30
 
 - name: Create dir
   file:

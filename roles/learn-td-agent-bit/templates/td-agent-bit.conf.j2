@@ -52,7 +52,7 @@
 [INPUT]
     Name health
     Tag  local_health
-    Host {{ ansible_eth0['ipv4']['address'] }}
+    Host 10.111.64.56
     Port 2020
     Interval_Sec 10
     Internal_Nsec 0
@@ -67,15 +67,15 @@
 
 [INPUT]
     Name                          tail
-    Tag                           {{ TAG }}
-    Path                          {{ LOG_PATH }}
+    Tag                           {{ LEARN_MAIN_TAG }}
+    Path                          {{ LEARN_LOG_PATH }}
     Path_Key                      path
     Exclude_Path                  *.gz,*.zip
     Refresh_Interval              10s
     Rotate_Wait                   5s
     Ignore_Older                  2d
     Skip_Long_Lines               On
-    DB                            /tmp/study_fluentbit.db
+    DB                            {{ LEARN_MAIN_DB_PATH }}
     DB.Sync                       Full
     Buffer_Chunk_Size             1m
     Buffer_Max_Size               30m
@@ -84,19 +84,39 @@
     Multiline                     On
     Multiline_Flush               2
     Parser_Firstline              java_multiline
+
+[INPUT]
+    Name                          tail
+    Tag                           {{ LEARN_RECORD_TAG }}
+    Path                          {{ LEARN_RECORD_LOG_PATH }}
+    Path_Key                      path
+    Exclude_Path                  *.gz,*.zip
+    Refresh_Interval              10s
+    Rotate_Wait                   5s
+    Ignore_Older                  2d
     Skip_Long_Lines               On
+    DB                            {{ LEARN_RECORD_DB_PATH }}
+    DB.Sync                       Full
+    Buffer_Chunk_Size             1m
+    Buffer_Max_Size               30m
+    Mem_Buf_Limit                 64m
+    Key                           message
+    Parser                        json
 
 [FILTER]
     Name   record_modifier
-    Match  {{ TAG }}
+    Match  {{ LEARN_RECORD_TAG }}
     Record hostname ${HOSTNAME}
-    Record topic {{ TOPIC }}
+    Record topic {{ LEARN_RECORD_TOPIC }}
     Record ip_lan ${IP}
 
 [FILTER]
-    Name  grep
-    Match  {{ TAG }}
-    Exclude  message  getQuizContentsHtml
+    Name   record_modifier
+    Match  {{ LEARN_MAIN_TAG }}
+    Record hostname ${HOSTNAME}
+    Record topic {{ LEARN_MAIN_TOPIC }}
+    Record ip_lan ${IP}
+
 
 [FILTER]
     Name   record_modifier
@@ -105,16 +125,16 @@
 
 [OUTPUT]
     Name                          kafka
-    Match                         {{ TAG }}
+    Match                         {{ KAFKA_TAG }}
     Format                        json
     Message_Key                   message
-    Timestamp_Key                 intime
+    Timestamp_Key                 timestamp
     Brokers                       kafka-1.hfjy.com:9092,kafka-2.hfjy.com:9092,kafka-3.hfjy.com:9092,kafka-4.hfjy.com:9092,kafka-5.hfjy.com:9092
-#    Topics                        fluentbit,cpu_monitor
-#    Topic_Key                     topic
-    Topics                        {{ TOPIC }}
+    Topics                        {{ LEARN_RECORD_TOPIC }},{{ LEARN_MAIN_TOPIC }}
+    Topic_Key                     topic
     rdkafka.message.max.bytes     10000000
     rdkafka.partitioner           random
+    rdkafka.compression.codec     gzip
 
 [OUTPUT]
     Name    influxdb
